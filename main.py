@@ -2,6 +2,17 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from pathlib import Path
+import streamlit as st
+
+# Gets the absolute path of the current file
+main_file_path = Path(__file__).resolve()
+
+# Gets the directory containing the file
+root_dir = main_file_path.parent
+
+st.write(f"Main file path: {main_file_path}")
+st.write(f"Project root directory: {root_dir}")
 
 
 def print_hi(name):
