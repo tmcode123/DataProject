@@ -1,38 +1,24 @@
 import streamlit as st
 import pandas as pd
-from pathlib import Path
+import numpy as np
 
-# --- PATH SETUP ---
-base_dir = Path(__file__).resolve().parent
-DATA_FILENAME = "titanic.csv"
-data_path = base_dir / DATA_FILENAME
+# Add a title and header
+st.title("My First Streamlit App")
+st.header("Interactive Data Dashboard")
 
-st.title("🚢 Titanic Data Explorer")
+# Take user input
+name = st.text_input("Enter your name:")
 
-# --- AUTO-DOWNLOAD REAL DATA ---
-@st.cache_data
-def get_real_data():
-    url = "https://githubusercontent.com"
-    data = pd.read_csv(url)
-    data.to_csv(data_path, index=False) # Save it locally
-    return data
+# Add a slider widget
+value = st.slider("Select a range", 0, 100, 25)
 
-# Check if we already have it; if not, get it
-if not data_path.exists():
-    with st.spinner("Downloading real data..."):
-        df = get_real_data()
-else:
-    df = pd.read_csv(data_path)
+# Display interactive charts
+chart_data = pd.DataFrame(
+    np.random.randn(20, 3),
+    columns=['a', 'b', 'c']
+)
+st.line_chart(chart_data)
 
-# --- APP UI ---
-st.success(f"Using local file: `{data_path.name}`")
-
-st.subheader("Passenger Search")
-search = st.text_input("Search by Name")
-if search:
-    df = df[df['Name'].str.contains(search, case=False)]
-
-st.dataframe(df)
-
-# Quick stat
-st.metric("Survival Rate", f"{round(df['Survived'].mean() * 100, 1)}%")
+# Conditional display using a button
+if st.button("Submit"):
+    st.success(f"Hello, {name}! You selected {value}.")
