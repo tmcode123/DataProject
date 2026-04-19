@@ -1,27 +1,38 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-from pathlib import Path
 import streamlit as st
+import pandas as pd
+from pathlib import Path
 
-# Gets the absolute path of the current file
-main_file_path = Path(__file__).resolve()
+# --- PATH SETUP ---
+base_dir = Path(__file__).resolve().parent
+DATA_FILENAME = "titanic.csv"
+data_path = base_dir / DATA_FILENAME
 
-# Gets the directory containing the file
-root_dir = main_file_path.parent
+st.title("🚢 Titanic Data Explorer")
 
-st.write(f"Main file path: {main_file_path}")
-st.write(f"Project root directory: {root_dir}")
+# --- AUTO-DOWNLOAD REAL DATA ---
+@st.cache_data
+def get_real_data():
+    url = "https://githubusercontent.com"
+    data = pd.read_csv(url)
+    data.to_csv(data_path, index=False) # Save it locally
+    return data
 
+# Check if we already have it; if not, get it
+if not data_path.exists():
+    with st.spinner("Downloading real data..."):
+        df = get_real_data()
+else:
+    df = pd.read_csv(data_path)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# --- APP UI ---
+st.success(f"Using local file: `{data_path.name}`")
 
+st.subheader("Passenger Search")
+search = st.text_input("Search by Name")
+if search:
+    df = df[df['Name'].str.contains(search, case=False)]
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+st.dataframe(df)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Quick stat
+st.metric("Survival Rate", f"{round(df['Survived'].mean() * 100, 1)}%")
